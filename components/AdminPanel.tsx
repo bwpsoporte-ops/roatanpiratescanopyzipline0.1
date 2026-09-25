@@ -126,7 +126,9 @@ export function AdminPanel({
   const [activeTab, setActiveTab] = useState<TabType>('dashboard');
   const [sidebarExpanded, setSidebarExpanded] = useState(true);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
-  const [darkMode, setDarkMode] = useState(false);
+  const [darkMode, setDarkMode] = useState(() =>
+    typeof window !== 'undefined' && localStorage.getItem('pirates_admin_theme') === 'dark'
+  );
   const currentRole = currentUser.role;
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -134,10 +136,6 @@ export function AdminPanel({
   const [reservationToDelete, setReservationToDelete] = useState<Reservation | null>(null);
   const [deleteCredentials, setDeleteCredentials] = useState({ username: '', password: '' });
   const [deleteAuthError, setDeleteAuthError] = useState(false);
-
-  useEffect(() => {
-    setDarkMode(localStorage.getItem('pirates_admin_theme') === 'dark');
-  }, []);
 
   const toggleDarkMode = () => {
     setDarkMode((current) => {
