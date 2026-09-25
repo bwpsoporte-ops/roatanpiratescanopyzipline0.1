@@ -1,0 +1,6 @@
+{
+  "name": "Pirates of the Caribbean Zipline",
+  "description": "Sitio oficial de Pirates of the Caribbean Zipline en Roatán. Canopy de aventura entre selva tropical y vistas al mar Caribe, reservaciones en línea, precios y panel de administración.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
