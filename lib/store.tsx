@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import type {
   Language,
   Reservation,
@@ -55,8 +55,10 @@ function useAppStoreHook() {
   const [isAdminOpen, setIsAdminOpen] = useState(false);
 
   useEffect(() => {
-    const savedLanguage = localStorage.getItem('potc_lang_v1');
-    if (savedLanguage === 'es' || savedLanguage === 'en') setLangState(savedLanguage);
+    const languageFrame = window.requestAnimationFrame(() => {
+      const savedLanguage = localStorage.getItem('potc_lang_v1');
+      if (savedLanguage === 'es' || savedLanguage === 'en') setLangState(savedLanguage);
+    });
     LEGACY_STORAGE_KEYS.forEach((key) => localStorage.removeItem(key));
 
     let active = true;
@@ -72,7 +74,10 @@ function useAppStoreHook() {
       if (content.faqs) setFaqs(content.faqs);
       setReviews(publicReviews);
     }).catch(() => undefined);
-    return () => { active = false; };
+    return () => {
+      active = false;
+      window.cancelAnimationFrame(languageFrame);
+    };
   }, []);
 
   const setLang = (newLang: Language) => {
@@ -102,14 +107,14 @@ function useAppStoreHook() {
     });
   };
 
-  const refreshAdminData = async () => {
+  const refreshAdminData = useCallback(async () => {
     const [reservationResponse, reviewResponse] = await Promise.all([
       fetch('/api/reservations', { cache: 'no-store' }),
       fetch('/api/reviews?scope=admin', { cache: 'no-store' })
     ]);
     if (reservationResponse.ok) setReservations(await reservationResponse.json());
     if (reviewResponse.ok) setReviews(await reviewResponse.json());
-  };
+  }, []);
 
   const addReservation = async (booking: Omit<Reservation, 'id' | 'code' | 'createdAt'>): Promise<Reservation> => {
     const response = await fetch('/api/reservations', {
