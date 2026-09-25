@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Eye, EyeOff, LockKeyhole } from 'lucide-react';
@@ -52,16 +52,15 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     router.push('/reservar');
   };
 
-  const loadAdminUsers = async () => {
+  const loadAdminUsers = useCallback(async () => {
     const response = await fetch('/api/admin/users', { cache: 'no-store' });
     if (response.ok) setAdminUsers(await response.json());
     else setAdminUsers([]);
-  };
+  }, []);
 
   useEffect(() => {
     if (!isAdminRoute) return;
     let active = true;
-    setCheckingSession(true);
     fetch('/api/admin/auth', { cache: 'no-store' })
       .then((response) => response.json())
       .then(async (result) => {
@@ -74,7 +73,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       .catch(() => undefined)
       .finally(() => { if (active) setCheckingSession(false); });
     return () => { active = false; };
-  }, [isAdminRoute, setIsAdminOpen]);
+  }, [isAdminRoute, setIsAdminOpen, refreshAdminData, loadAdminUsers]);
 
   const handleAdminLogin = async (event: React.FormEvent) => {
     event.preventDefault();
